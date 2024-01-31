@@ -17,7 +17,9 @@
 #include <signal.h>
 #include <carla/client/ActorBlueprint.h>
 #include <carla/client/BlueprintLibrary.h>
+#include <carla/client/ActorList.h>
 #include <carla/client/Client.h>
+#include <carla/client/DebugHelper.h>
 #include <carla/client/Map.h>
 #include <carla/client/Sensor.h>
 #include <carla/client/TimeoutException.h>
@@ -29,6 +31,8 @@
 #include <carla/rpc/EpisodeSettings.h>
 #include <carla/client/World.h>
 #include <carla/client/WorldSnapshot.h>
+#include <carla/rpc/ActorDescription.h>
+#include <carla/rpc/Command.h>
 #include "utils/utils.h"
 
 #include<string>
@@ -150,8 +154,55 @@ int main(int argc, const char *argv[]) {
     // initialize_scenario(client, "Town04", "vehicle.tesla.model3", rng);
 
     // Load the town 04.
-    auto carla_world = client.LoadWorld("Town04");
+    auto carla_world = client.LoadWorld("Town01");
     world_ptr_ = std::shared_ptr<cc::World>(&carla_world);
+
+    // traffic managerment
+    // 管辖车的整体行为
+    // traffic manager里的每一辆车都要和前车保持至少3m的距离来保持安全
+    carla::traffic_manager::TrafficManager tm(carla_world.GetEpisode());
+    tm.SetGlobalDistanceToLeadingVehicle(3.0f);
+    tm.SetHybridPhysicsMode(true);
+    tm.SetGlobalPercentageSpeedDifference(80.0f);
+    tm.SetSynchronousMode(true);
+
+    int npc_number = 50;
+    auto map = carla_world.GetMap();
+    auto blueprint_library = carla_world.GetBlueprintLibrary();
+    auto all_vehicles_bl = blueprint_library->Filter("vehicle");
+    std::vector<carla::rpc::Command> batch_command;
+    for(int i = 0; i < npc_number; ++i){
+      auto npc_blueprint = RandomChoice(*all_vehicles_bl, rng);
+      // Randomize the npc_blueprint color.
+      if (npc_blueprint.ContainsAttribute("color")) {
+        auto &attribute = npc_blueprint.GetAttribute("color");
+        npc_blueprint.SetAttribute(
+            "color",
+            RandomChoice(attribute.GetRecommendedValues(), rng));
+      }
+      // Randomize the npc id.
+      if (npc_blueprint.ContainsAttribute("driver_id")) {
+        auto &attribute = npc_blueprint.GetAttribute("driver_id");
+        npc_blueprint.SetAttribute(
+            "driver_id",
+            RandomChoice(attribute.GetRecommendedValues(), rng));
+      }
+      npc_blueprint.SetAttribute("role_name","autopilot");
+      auto npc_transform = RandomChoice(map->GetRecommendedSpawnPoints(), rng);
+      while(carla_world.TrySpawnActor(npc_blueprint, npc_transform) == nullptr){
+        npc_transform = RandomChoice(map->GetRecommendedSpawnPoints(), rng);
+      }
+      auto npc_description = npc_blueprint.MakeActorDescription();
+      carla::rpc::Command::SpawnActor npc_spawn(npc_description, npc_transform);
+      carla::rpc::Command::SetAutopilot auto_npc(npc_description.uid, true, tm.Port());
+
+      batch_command.emplace_back(npc_spawn);
+      batch_command.emplace_back(auto_npc);
+      std::cout<<"finish npc:"<<i<<std::endl;
+    }
+
+    // excute the command for npc vehicle
+    auto excute_response = client.ApplyBatchSync(batch_command, true);
 
     auto settings = carla_world.GetSettings();
     previous_settings = settings;
@@ -166,29 +217,34 @@ int main(int argc, const char *argv[]) {
     carla_world.ApplySettings(settings,3s);
 
     // Get the Tesla vehicle blueprint
-    auto ego_blueprint = carla_world.GetBlueprintLibrary()->Find("vehicle.jeep.wrangler_rubicon");
-    auto blueprint = *ego_blueprint;
+    auto ego_blueprint = *blueprint_library->Find("vehicle.jeep.wrangler_rubicon");
+    // auto blueprint = *ego_blueprint;
 
     // Randomize the blueprint.
-    if (blueprint.ContainsAttribute("color")) {
-      auto &attribute = blueprint.GetAttribute("color");
-      blueprint.SetAttribute("color", "0,0,0");
-      // blueprint->SetAttribute(
-      //     "color",
-      //     RandomChoice(attribute.GetRecommendedValues(), rng));
+    if (ego_blueprint.ContainsAttribute("color")) {
+      auto &attribute = ego_blueprint.GetAttribute("color");
+      // ego_blueprint.SetAttribute("color", "0,255,0");
+      ego_blueprint.SetAttribute(
+          "color",
+          RandomChoice(attribute.GetRecommendedValues(), rng));
     }
 
     // Find a valid spawn point.
-    auto map = carla_world.GetMap();
+    auto point = map->GetRecommendedSpawnPoints();
+    std::cout<<"spawn point size:"<<point.size()<<std::endl;
     auto transform = RandomChoice(map->GetRecommendedSpawnPoints(), rng);
-
+    while(carla_world.TrySpawnActor(ego_blueprint, transform) == nullptr){
+      std::cout<<"generate new spawn position again"<<std::endl;
+      transform = RandomChoice(map->GetRecommendedSpawnPoints(), rng);
+    }
     // Spawn the vehicle.
-    auto ego = carla_world.SpawnActor(blueprint, transform);
-    std::cout << "Spawned " << ego->GetDisplayId() << '\n';
-    auto vehicle = boost::static_pointer_cast<cc::Vehicle>(ego);
+    auto ego_vehicle = carla_world.SpawnActor(ego_blueprint, transform);
+    std::cout << "Spawned " << ego_vehicle->GetDisplayId() << '\n';
+    auto ego = boost::static_pointer_cast<cc::Vehicle>(ego_vehicle);
 
     // }
     bool is_wait_for_tick = false;
+    cc::DebugHelper debug(carla_world.GetEpisode());
     while(true){
       // auto all_vehicles = carla_world.GetActors().Filter
       // carla_world.WaitForTick(10min);
@@ -198,7 +254,7 @@ int main(int argc, const char *argv[]) {
         carla_world.WaitForTick(10min);
       }
 
-      auto ego_transform = vehicle->GetTransform();
+      auto ego_transform = ego->GetTransform();
       auto spectator = carla_world.GetSpectator();
       auto offset_vector = cg::Location{-10.0 * cos(ego_transform.rotation.yaw * M_PI / 180.0),
                                         -10.0 * sin(ego_transform.rotation.yaw * M_PI / 180.0),
@@ -206,6 +262,16 @@ int main(int argc, const char *argv[]) {
       auto spectator_transform = cg::Transform(ego_transform.location + offset_vector,
                                               cg::Rotation(-45.0,ego_transform.rotation.yaw,0));
       spectator->SetTransform(spectator_transform);
+
+      // boundary box for vehicle
+      auto all_vehicles = *carla_world.GetActors();
+      std::cout<<"the number of box:"<<all_vehicles.size()<<std::endl;
+      for (const auto& vehicle : all_vehicles){
+        auto vehicle_transform = vehicle->GetTransform();
+        auto bounding_box = vehicle->GetBoundingBox();
+        bounding_box.location += vehicle_transform.location;
+        debug.DrawBox(bounding_box, bounding_box.rotation);
+      }
     }
 
     // Apply control to vehicle.
@@ -245,7 +311,7 @@ int main(int argc, const char *argv[]) {
     // Remove actors from the simulation.
     camera->Destroy();
 */
-    vehicle->Destroy();
+    ego->Destroy();
     std::cout << "Actors destroyed." << std::endl;
 
   } catch (const cc::TimeoutException &e) {
