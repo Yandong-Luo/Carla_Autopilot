@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "Autopilot"
-  "Autopilot.pdb"
+  "../bin/Autopilot"
+  "../bin/Autopilot.pdb"
   "CMakeFiles/Autopilot.dir/main.cpp.o"
 )
 

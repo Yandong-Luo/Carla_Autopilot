@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
+  "../../../lib/libutils.a"
+  "../../../lib/libutils.pdb"
   "CMakeFiles/utils.dir/common.cpp.o"
-  "libutils.a"
-  "libutils.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

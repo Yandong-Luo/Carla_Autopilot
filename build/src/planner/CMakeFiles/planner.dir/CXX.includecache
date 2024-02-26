@@ -575,6 +575,8 @@ carla/road/element/LaneMarking.h
 -
 utils/utils.h
 ../include/planner/utils/utils.h
+boost/shared_ptr.hpp
+-
 
 ../include/utils/utils.h
 iostream

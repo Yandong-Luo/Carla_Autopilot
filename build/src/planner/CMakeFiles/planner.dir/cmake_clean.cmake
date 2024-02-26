@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
+  "../../../lib/libplanner.a"
+  "../../../lib/libplanner.pdb"
   "CMakeFiles/planner.dir/planner.cpp.o"
-  "libplanner.a"
-  "libplanner.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

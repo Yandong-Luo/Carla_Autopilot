@@ -165,6 +165,7 @@ CMakeFiles/Autopilot.dir/main.cpp.o
  ../carla_lib/include/carla/trafficmanager/SimpleWaypoint.h
  ../carla_lib/include/carla/trafficmanager/TrafficManager.h
  ../carla_lib/include/carla/trafficmanager/TrafficManagerBase.h
+ ../include/planner/planner.h
  ../include/utils/utils.h
  ../rpclib/include/rpc/msgpack.hpp
  ../rpclib/include/rpc/msgpack/adaptor/adaptor_base.hpp

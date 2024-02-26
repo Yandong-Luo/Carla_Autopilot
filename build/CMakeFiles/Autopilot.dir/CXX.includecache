@@ -1890,6 +1890,22 @@ carla/client/Actor.h
 carla/trafficmanager/SimpleWaypoint.h
 ../carla_lib/include/carla/trafficmanager/carla/trafficmanager/SimpleWaypoint.h
 
+../include/planner/planner.h
+iostream
+-
+math.h
+-
+set
+-
+carla/client/Map.h
+-
+carla/road/element/LaneMarking.h
+-
+utils/utils.h
+../include/planner/utils/utils.h
+boost/shared_ptr.hpp
+-
+
 ../include/utils/utils.h
 iostream
 -
@@ -7197,8 +7213,12 @@ carla/rpc/ActorDescription.h
 -
 carla/rpc/Command.h
 -
+carla/AtomicList.h
+-
 utils/utils.h
 /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/utils/utils.h
+planner/planner.h
+/home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/planner/planner.h
 string
 -
 math.h

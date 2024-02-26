@@ -112,7 +112,8 @@ src/utils/clean: src/utils/CMakeFiles/utils.dir/clean
 # Target rules for target CMakeFiles/Autopilot.dir
 
 # All Build rule for target.
-CMakeFiles/Autopilot.dir/all:
+CMakeFiles/Autopilot.dir/all: src/planner/CMakeFiles/planner.dir/all
+CMakeFiles/Autopilot.dir/all: src/utils/CMakeFiles/utils.dir/all
 	$(MAKE) -f CMakeFiles/Autopilot.dir/build.make CMakeFiles/Autopilot.dir/depend
 	$(MAKE) -f CMakeFiles/Autopilot.dir/build.make CMakeFiles/Autopilot.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles --progress-num=1,2 "Built target Autopilot"
@@ -120,7 +121,7 @@ CMakeFiles/Autopilot.dir/all:
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Autopilot.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Autopilot.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 0
 .PHONY : CMakeFiles/Autopilot.dir/rule
@@ -166,7 +167,7 @@ src/utils/CMakeFiles/utils.dir/clean:
 # Target rules for target src/planner/CMakeFiles/planner.dir
 
 # All Build rule for target.
-src/planner/CMakeFiles/planner.dir/all:
+src/planner/CMakeFiles/planner.dir/all: src/utils/CMakeFiles/utils.dir/all
 	$(MAKE) -f src/planner/CMakeFiles/planner.dir/build.make src/planner/CMakeFiles/planner.dir/depend
 	$(MAKE) -f src/planner/CMakeFiles/planner.dir/build.make src/planner/CMakeFiles/planner.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles --progress-num=3,4 "Built target planner"
@@ -174,7 +175,7 @@ src/planner/CMakeFiles/planner.dir/all:
 
 # Build rule for subdir invocation for target.
 src/planner/CMakeFiles/planner.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 src/planner/CMakeFiles/planner.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/chris/Carla/CARLA_0.9.14/carla_ws/Autopilot/build/CMakeFiles 0
 .PHONY : src/planner/CMakeFiles/planner.dir/rule

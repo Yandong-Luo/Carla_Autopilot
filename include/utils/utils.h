@@ -27,14 +27,16 @@ namespace autopilot{
         {
         private:
             boost::shared_ptr<carla::client::Waypoint> waypoint_{nullptr};
-            double distance_ = 0.0;
+            // boost::shared_ptr<carla::client::Waypoint> waypoint_{new carla::SharedPtr<carla::client::Waypoint>};
+            double distance_ {std::numeric_limits<double>::max()};
         public:
             WayPoint_Node() = default;
-            WayPoint_Node(boost::shared_ptr<carla::client::Waypoint> waypoint, double distance):waypoint_(std::move(waypoint_)), distance_(distance){}
-            bool comparator(const WayPoint_Node& node1, const WayPoint_Node& node2);
+            WayPoint_Node(boost::shared_ptr<carla::client::Waypoint> waypoint, double distance):waypoint_(std::move(waypoint)), distance_(distance){
+            }
+            // bool comparator(const WayPoint_Node& node1, const WayPoint_Node& node2);
             boost::shared_ptr<carla::client::Waypoint> GetWayPoint() const;
             double GetDistance() const;
-            ~WayPoint_Node();
+            // ~WayPoint_Node();
         };
         
         struct WayPoint_Comparator{

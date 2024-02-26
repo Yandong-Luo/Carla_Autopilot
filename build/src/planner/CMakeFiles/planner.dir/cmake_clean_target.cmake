@@ -1,3 +1,3 @@
 file(REMOVE_RECURSE
-  "libplanner.a"
+  "../../../lib/libplanner.a"
 )
