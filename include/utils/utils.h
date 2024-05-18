@@ -27,14 +27,16 @@ namespace autopilot{
         {
         private:
             boost::shared_ptr<carla::client::Waypoint> waypoint_{nullptr};
-            double distance_ = 0.0;
+            // boost::shared_ptr<carla::client::Waypoint> waypoint_{new carla::SharedPtr<carla::client::Waypoint>};
+            double distance_ {std::numeric_limits<double>::max()};
         public:
             WayPoint_Node() = default;
-            WayPoint_Node(boost::shared_ptr<carla::client::Waypoint> waypoint, double distance):waypoint_(std::move(waypoint_)), distance_(distance){}
-            bool comparator(const WayPoint_Node& node1, const WayPoint_Node& node2);
+            WayPoint_Node(boost::shared_ptr<carla::client::Waypoint> waypoint, double distance):waypoint_(std::move(waypoint)), distance_(distance){
+            }
+            // bool comparator(const WayPoint_Node& node1, const WayPoint_Node& node2);
             boost::shared_ptr<carla::client::Waypoint> GetWayPoint() const;
             double GetDistance() const;
-            ~WayPoint_Node();
+            // ~WayPoint_Node();
         };
         
         struct WayPoint_Comparator{
@@ -48,6 +50,62 @@ namespace autopilot{
                 }
             }
         };
+
+        struct VehicleState 
+        {
+            double x;
+            double y;
+            double heading;   // 车辆朝向
+            double kappa;     // 曲率(切线斜率)
+            double velocity;    // 速度
+            double angular_velocity;  // 角速度
+            double acceleration;    // 加速度
+
+            // 规划起点
+            double planning_init_x; 
+            double planning_init_y;
+
+            double roll;  
+            double pitch;
+            double yaw;
+
+            double target_curv;  // 期望点的曲率
+
+            double vx;
+            double vy;
+            double vz;
+            double ax;
+            double ay;
+            double az;
+
+            double v;
+
+            // added
+            double start_point_x;
+            double start_point_y;
+
+            double relative_x = 0;
+            double relative_y = 0;
+
+            double relative_distance = 0;
+
+            double start_heading;
+        };
+
+        struct PathProfile{
+            std::vector<double>* headings;
+            std::vector<double>* accumulated_s;
+            std::vector<double>* kappas;
+            std::vector<double>* dkappas;
+        };
+
+        bool ComputePathProfile(const std::vector<carla::geom::Location> route_wypoint,
+                                std::vector<double>* headings,
+                                std::vector<double>* accumulated_s,
+                                std::vector<double>* kappas,
+                                std::vector<double>* dkappas);
+                                
+        VehicleState UpdateVehicleState();
     }
 }
 
